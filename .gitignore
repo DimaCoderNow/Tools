@@ -1,0 +1,5 @@
+.venv/
+
+/generated
+# Ignore all .idea files by default
+.idea/
