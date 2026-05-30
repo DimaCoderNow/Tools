@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>Title</title>
+</head>
+<body>
+<div class="contents">
+    <div class="top">
+        <div class="sub_menu">
+            <label for="organization">Организация</label>
+            <select id="organization" name="organization" required>
+                <option value="">-- Выберите организацию --</option>
+                <option value="ООО Ромашка">ООО Ромашка</option>
+                <option value="АО ТехноСервис">АО ТехноСервис</option>
+                <option value="ИП Иванов">ИП Иванов</option>
+                <option value="ООО ГлобалТрейд">ООО ГлобалТрейд</option>
+                <option value="ЗАО СтройИнвест">ЗАО СтройИнвест</option>
+            </select>
+        </div>
+        <div class="sub_menu">
+            <label for="number">Номер договора</label>
+            <input type="text" id="number" name="number" required>
+        </div>
+        <div class="sub_menu">
+            <label for="date">Дата договора</label>
+            <input type="date" id="date" name="date" required>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="left">
+            <div class="button-full" data-target="buyer">Покупатель</div>
+            <div class="button-full" data-target="product">Товар</div>
+            <div class="button-full" data-target="download">Скачать</div>
+        </div>
+        <div class="right">
+            <div class="buyer">
+                <form action="/submit" method="post" class="form">
+                    <label for="fio">ФИО</label>
+                    <input type="text" id="fio" name="fio" required>
+
+                    <label for="phone">Телефон</label>
+                    <input type="tel" id="phone" name="phone" required>
+
+                    <label for="passport_series">Серия паспорта</label>
+                    <input type="text" id="passport_series" name="passport_series" maxlength="4" required>
+
+                    <label for="passport_number">Номер паспорта</label>
+                    <input type="text" id="passport_number" name="passport_number" maxlength="6" required>
+
+                    <label for="address">Адрес</label>
+                    <textarea rows="5" cols="33" id="address" name="address"></textarea>
+                </form>
+            </div>
+            <div class="product">
+                <div class="product-header">
+                    <h2>📦 Товары</h2>
+                    <button class="add-row-btn" onclick="addProductRow()">+ Добавить товар</button>
+                </div>
+
+                <table class="products-table" id="products-table">
+                    <thead>
+                        <tr>
+                            <th>Наименование товара</th>
+                            <th>Количество</th>
+                            <th>Цена (₽)</th>
+                            <th>НДС (₽)</th>
+                            <th>Сумма с НДС (₽)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-tbody">
+                    </tbody>
+                </table>
+
+                <div class="total-row">
+                    Итого: <span id="total-amount">0</span> ₽
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Данные для хранения товаров
+    let products = [];
+
+    // Функция для пересчета итоговой суммы
+    function calculateTotal() {
+        let total = 0;
+        products.forEach(product => {
+            total += product.sumWithVAT;
+        });
+        document.getElementById('total-amount').textContent = total.toLocaleString('ru-RU');
+        return total;
+    }
+
+    // Функция для обновления отображения таблицы
+    function renderTable() {
+        const tbody = document.getElementById('products-tbody');
+        tbody.innerHTML = '';
+
+        products.forEach((product, index) => {
+            const row = tbody.insertRow();
+
+            // Наименование товара
+            const nameCell = row.insertCell(0);
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.value = product.name;
+            nameInput.placeholder = 'Введите товар';
+            nameInput.addEventListener('change', (e) => {
+                products[index].name = e.target.value;
+            });
+            nameCell.appendChild(nameInput);
+
+            // Количество
+            const quantityCell = row.insertCell(1);
+            const quantityInput = document.createElement('input');
+            quantityInput.type = 'number';
+            quantityInput.value = product.quantity;
+            quantityInput.min = '1';
+            quantityInput.step = '1';
+            quantityInput.addEventListener('change', (e) => {
+                products[index].quantity = parseInt(e.target.value) || 0;
+                updateRowSum(index);
+                calculateTotal();
+            });
+            quantityCell.appendChild(quantityInput);
+
+            // Цена
+            const priceCell = row.insertCell(2);
+            const priceInput = document.createElement('input');
+            priceInput.type = 'number';
+            priceInput.value = product.price;
+            priceInput.min = '0';
+            priceInput.step = '100';
+            priceInput.addEventListener('change', (e) => {
+                products[index].price = parseInt(e.target.value) || 0;
+                updateRowSum(index);
+                calculateTotal();
+            });
+            priceCell.appendChild(priceInput);
+
+            // НДС (ручной ввод)
+            const vatCell = row.insertCell(3);
+            const vatInput = document.createElement('input');
+            vatInput.type = 'number';
+            vatInput.value = product.vat;
+            vatInput.min = '0';
+            vatInput.step = '100';
+            vatInput.placeholder = 'Сумма НДС';
+            vatInput.addEventListener('change', (e) => {
+                products[index].vat = parseInt(e.target.value) || 0;
+                updateRowSum(index);
+                calculateTotal();
+            });
+            vatCell.appendChild(vatInput);
+
+            // Сумма с НДС (ручной ввод)
+            const sumCell = row.insertCell(4);
+            const sumInput = document.createElement('input');
+            sumInput.type = 'number';
+            sumInput.value = product.sumWithVAT;
+            sumInput.min = '0';
+            sumInput.step = '100';
+            sumInput.placeholder = 'Сумма с НДС';
+            sumInput.addEventListener('change', (e) => {
+                products[index].sumWithVAT = parseInt(e.target.value) || 0;
+                calculateTotal();
+            });
+            sumCell.appendChild(sumInput);
+
+            // Кнопка удаления
+            const deleteCell = row.insertCell(5);
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = '✖';
+            deleteBtn.className = 'delete-row';
+            deleteBtn.onclick = () => {
+                products.splice(index, 1);
+                renderTable();
+                calculateTotal();
+            };
+            deleteCell.appendChild(deleteBtn);
+        });
+    }
+
+    // Функция обновления суммы в конкретной строке (если нужно синхронизировать)
+    function updateRowSum(index) {
+        // Здесь можно добавить логику, если нужно автоматически пересчитывать
+        // Но по требованию пользователь сам вписывает вручную
+        const product = products[index];
+        const row = document.getElementById('products-tbody').rows[index];
+        if (row) {
+            // Можно оставить пустым или добавить подсказку
+            // Пользователь сам заполняет сумму с НДС вручную
+        }
+    }
+
+    // Функция добавления новой строки с товаром
+    function addProductRow() {
+        products.push({
+            name: '',
+            quantity: 1,
+            price: 0,
+            vat: 0,
+            sumWithVAT: 0
+        });
+        renderTable();
+        calculateTotal();
+    }
+
+    // Активация блоков по клику
+    const buttons = document.querySelectorAll('.button-full');
+    const buyerBlock = document.querySelector('.buyer');
+    const productBlock = document.querySelector('.product');
+
+    function removeActiveClassFromButtons() {
+        buttons.forEach(btn => {
+            btn.classList.remove('active-btn');
+        });
+    }
+
+    function hideAllBlocks() {
+        buyerBlock.classList.remove('active');
+        productBlock.classList.remove('active');
+    }
+
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            const target = button.getAttribute('data-target');
+
+            hideAllBlocks();
+            removeActiveClassFromButtons();
+
+            if (target === 'buyer') {
+                buyerBlock.classList.add('active');
+                button.classList.add('active-btn');
+            } else if (target === 'product') {
+                productBlock.classList.add('active');
+                button.classList.add('active-btn');
+            } else if (target === 'download') {
+                // Собираем данные для скачивания
+                const organization = document.getElementById('organization').value;
+                const contractNumber = document.getElementById('number').value;
+                const contractDate = document.getElementById('date').value;
+                const fio = document.getElementById('fio').value;
+                const phone = document.getElementById('phone').value;
+                const passportSeries = document.getElementById('passport_series').value;
+                const passportNumber = document.getElementById('passport_number').value;
+                const address = document.getElementById('address').value;
+
+                let productsData = '';
+                products.forEach((product, index) => {
+                    productsData += `${index + 1}. ${product.name || 'Не указано'} - Кол-во: ${product.quantity}, Цена: ${product.price} ₽, НДС: ${product.vat} ₽, Сумма с НДС: ${product.sumWithVAT.toLocaleString('ru-RU')} ₽\n`;
+                });
+
+                const total = calculateTotal();
+
+                const message = `Договор №${contractNumber} от ${contractDate}\n\n` +
+                    `Организация: ${organization}\n` +
+                    `Покупатель: ${fio}\n` +
+                    `Телефон: ${phone}\n` +
+                    `Паспорт: ${passportSeries} ${passportNumber}\n` +
+                    `Адрес: ${address}\n\n` +
+                    `Товары:\n${productsData || 'Товары не добавлены\n'}` +
+                    `\nИтого с НДС: ${total.toLocaleString('ru-RU')} ₽`;
+
+                alert('Скачивание файла...\n\n' + message);
+            }
+        });
+    });
+
+    // Показываем первый блок по умолчанию
+    buyerBlock.classList.add('active');
+    buttons[0].classList.add('active-btn');
+</script>
+</body>
+</html>
