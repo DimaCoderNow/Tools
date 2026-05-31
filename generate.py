@@ -44,6 +44,8 @@ def generate_contract(
     elif organization == "robix":
         organization_name = "Робикс"
 
+    print()
+
     context = {
         "number": number,
         "date": date,
