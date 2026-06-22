@@ -1,13 +1,17 @@
 from docxtpl import DocxTemplate
-import uuid
 import os
-import json
+import re
 
 TEMPLATE_PATH = "templates/contract_template.docx"
 OUTPUT_DIR = "generated"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+def clean_filename(filename):
+    """Удаляет недопустимые символы из имени файла"""
+    # Заменяем все недопустимые символы на '_'
+    # Недопустимые: / \ : * ? " < > |
+    return re.sub(r'[\\/*?:"<>|]', '', filename)
 
 def generate_contract(
     number: str,
@@ -64,8 +68,8 @@ def generate_contract(
 
     doc.render(context)
 
-    filename = f"{uuid.uuid4()}.docx"
-
+    raw_filename = f"ДКП {organization_name} {number}.docx"
+    filename = clean_filename(raw_filename)
     output_path = os.path.join(
         OUTPUT_DIR,
         filename

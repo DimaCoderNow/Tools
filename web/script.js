@@ -158,15 +158,12 @@ async function downloadContract() {
 
         if (response.ok) {
             // Получаем файл
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `contract_${contractNumber}.docx`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
+
+            const data = await response.json();
+
+            // Шаг 2: Скачиваем файл через GET-запрос
+            const downloadUrl = `/download?file_path=${encodeURIComponent(data.file)}`;
+            window.open(downloadUrl, '_blank');
 
             alert('Договор успешно сгенерирован и скачан!');
         } else {

@@ -4,6 +4,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import HTTPException
 from generate import generate_contract
 import json
+import os
+import uuid
+from urllib.parse import quote
 
 app = FastAPI()
 
@@ -49,10 +52,41 @@ async def submit_form(
             products=products_list
         )
 
-        return FileResponse(
-            output_path,
-            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            filename=f"contract_{number}.docx"
+        return {
+            "status": "success",
+            "file": output_path,
+
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/download")
+async def download_file(file_path: str):
+    """
+    Эндпоинт для скачивания файла по пути
+    """
+    try:
+        # Проверяем, существует ли файл
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="Файл не найден")
+
+
+        filename = os.path.basename(file_path)
+
+        # Кодируем имя файла для заголовка
+        encoded_filename = quote(filename)
+
+        response = FileResponse(
+            file_path,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         )
+
+        # Устанавливаем заголовок с правильным именем
+        response.headers["Content-Disposition"] = (
+            f"attachment; filename*=UTF-8''{encoded_filename}"
+        )
+
+        return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
