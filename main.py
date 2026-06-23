@@ -5,7 +5,6 @@ from fastapi import HTTPException
 from generate import generate_contract
 import json
 import os
-import uuid
 from urllib.parse import quote
 
 app = FastAPI()
@@ -28,6 +27,7 @@ async def submit_form(
         passport_series: str = Form(...),
         passport_number: str = Form(...),
         passport_code: str = Form(...),
+        passport_issued: str = Form(...),
         address: str = Form(...),
         total: str = Form(...),
         nds: str = Form(...),
@@ -45,6 +45,7 @@ async def submit_form(
             passport_series=passport_series,
             passport_number=passport_number,
             passport_code=passport_code,
+            passport_issued=passport_issued,
             address=address,
             organization=organization,
             total=total,
@@ -90,3 +91,9 @@ async def download_file(file_path: str):
         return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+from num2words import num2words
+
+# Сумма в рублях
+summa = float(123)
+print(num2words(summa, lang='ru', to='currency', currency='RUB'))

@@ -90,6 +90,7 @@ async function downloadContract() {
     const passportSeries = document.getElementById('passport_series').value;
     const passportNumber = document.getElementById('passport_number').value;
     const passportCode = document.getElementById('passport_code').value;
+    const passportIssued = document.getElementById('passport_issued').value;
     const address = document.getElementById('address').value;
     const total = document.getElementById('contract-total').value || 0;
     const nds = document.getElementById('contract-nds').value || 0;
@@ -138,6 +139,7 @@ async function downloadContract() {
     formData.append('passport_series', passportSeries);
     formData.append('passport_number', passportNumber);
     formData.append('passport_code', passportCode);
+    formData.append('passport_issued', passportIssued);
     formData.append('address', address);
     formData.append('total', total);
     formData.append('nds', nds);
