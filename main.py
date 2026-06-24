@@ -91,9 +91,3 @@ async def download_file(file_path: str):
         return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-from num2words import num2words
-
-# Сумма в рублях
-summa = float(123)
-print(num2words(summa, lang='ru', to='currency', currency='RUB'))

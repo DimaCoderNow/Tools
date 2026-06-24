@@ -88,7 +88,7 @@ def generate_contract(
         "passport_issued": passport_issued,
         "address": address,
         "organization": organization_name,
-        "amount_words": amount_words,
+        "amount_words": amount_words.capitalize(),
         "currency_rub": currency_rub,
         "cents_words": cents_words,
         "currency_kop": currency_kop,
