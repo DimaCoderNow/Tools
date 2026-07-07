@@ -87,9 +87,11 @@ async function downloadContract() {
     const contractDate = document.getElementById('date').value;
     const fio = document.getElementById('fio').value;
     const phone = document.getElementById('phone').value;
+    const birthDate = document.getElementById('birth_date').value;
     const passportSeries = document.getElementById('passport_series').value;
     const passportNumber = document.getElementById('passport_number').value;
     const passportCode = document.getElementById('passport_code').value;
+    const passportDate = document.getElementById('passport_date').value;
     const passportIssued = document.getElementById('passport_issued').value;
     const address = document.getElementById('address').value;
     const total = document.getElementById('contract-total').value || 0;
@@ -116,6 +118,10 @@ async function downloadContract() {
         alert('Пожалуйста, введите телефон');
         return;
     }
+    if (!birthDate) {
+    alert('Пожалуйста, введите дату рождения');
+    return;
+    }
     if (!passportSeries) {
         alert('Пожалуйста, введите серию паспорта');
         return;
@@ -128,6 +134,10 @@ async function downloadContract() {
         alert('Пожалуйста, введите код подразделения');
         return;
     }
+    if (!passportDate) {
+        alert('Пожалуйста, введите дату выдачи паспорта');
+        return;
+    }
 
     // Создаем FormData для отправки
     const formData = new FormData();
@@ -136,13 +146,15 @@ async function downloadContract() {
     formData.append('date', contractDate);
     formData.append('fio', fio);
     formData.append('phone', phone);
+    formData.append('birth_date', birthDate);
     formData.append('passport_series', passportSeries);
     formData.append('passport_number', passportNumber);
     formData.append('passport_code', passportCode);
+    formData.append('passport_date', passportDate);
     formData.append('passport_issued', passportIssued);
     formData.append('address', address);
-    formData.append('total', total);
-    formData.append('nds', nds);
+    formData.append('total', String(total));
+    formData.append('nds', String(nds));
     formData.append('products', JSON.stringify(products));
 
     // Показываем индикатор загрузки

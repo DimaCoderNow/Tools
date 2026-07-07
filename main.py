@@ -24,10 +24,12 @@ async def submit_form(
         date: str = Form(...),
         fio: str = Form(...),
         phone: str = Form(...),
+        birth_date: str  = Form(...),
         passport_series: str = Form(...),
         passport_number: str = Form(...),
         passport_code: str = Form(...),
         passport_issued: str = Form(...),
+        passport_date: str = Form(...),
         address: str = Form(...),
         total: str = Form(...),
         nds: str = Form(...),
@@ -36,16 +38,18 @@ async def submit_form(
     try:
         # Парсим JSON с товарами
         products_list = json.loads(products)
-
+        print("test_main")
         output_path = generate_contract(
             number=number,
             date=date,
             fio=fio,
             phone=phone,
+            birth_date=birth_date,
             passport_series=passport_series,
             passport_number=passport_number,
             passport_code=passport_code,
             passport_issued=passport_issued,
+            passport_date=passport_date,
             address=address,
             organization=organization,
             total=total,
